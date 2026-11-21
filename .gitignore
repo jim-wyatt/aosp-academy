@@ -6,6 +6,8 @@
 # Downloads, venv, and everything the phone procedure creates, including
 # work/private-backups (your phone's original images). Never committed.
 work/
+# dev/: the same folder on the Windows build machine (cache, tools, venv, build outputs).
+dev/
 
 # --- Device data: private, may hold calibration, keys, IMEI/serial ---------------
 # (Also caught anywhere outside work/, in case something lands in the wrong place.)
