@@ -7,7 +7,7 @@
 
 ## What setup installed
 
-Two halves, pinned to the same Frida version in `toolchain.json` (17.26.3; the two must match):
+Two halves, pinned to the same Frida version in `toolchain.json` (17.27.4; the two must match):
 
 - **On the phone:** `frida-server`, an ARM64 program that runs as root and does the injecting. `aosp-academy setup` downloads it from Frida's GitHub release, checks its hash and unpacks it to `work/device-tools/frida-server`. It's pushed to the phone when you start it.
 - **On the PC:** the `frida` and `frida-tools` Python packages in their own virtual environment, `work/.venv-frida`. `aosp-academy shell` (and `aosp-academy env`) put that venv on PATH, so `frida`, `frida-ps`, `frida-trace` and `frida-discover` are plain commands there.
