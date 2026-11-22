@@ -57,6 +57,30 @@ if [ "$1" = charge-limit ]; then
     result "upper_limit=$v, blocking=$(cat "$mod/blocking" 2>/dev/null) (1 = holding charge off)"
 fi
 
+# Wired networks beside the full tunnel: keep each Ethernet network Android brings up (ethN: a USB
+# Ethernet adapter, or a USB device that is a network, such as an ADALM-Pluto SDR in NCM mode)
+# local, as rule 8995 keeps the Wi-Fi subnet local. One rule per network at 8996 looks
+# in that network's own table without its default route, so only its own subnet leaves by it and
+# everything else still goes into the tunnel. The tables come and go with the device, and a rule
+# left behind names a number instead of the table, so this replaces the 8996 rules whenever they
+# don't match the tables that exist. It touches 8996 only and never restarts the tunnel.
+wired_bypass() {
+    want=""
+    for i in $(ip -o link show 2>/dev/null | sed -n 's/^[0-9]*: \(eth[0-9][0-9]*\)[:@].*/\1/p'); do
+        ip -4 route show table "$i" 2>/dev/null | grep -q . && want="$want $i"
+    done
+    want="$(for i in $want; do echo "$i"; done | sort | tr '\n' ' ')"
+    have="$(ip -4 rule show priority 8996 2>/dev/null | sed -n 's/.*lookup \([^ ]*\).*/\1/p' | sort | tr '\n' ' ')"
+    [ "$want" = "$have" ] && return 0
+    for fam in -4 -6; do
+        while ip "$fam" rule del priority 8996 2>/dev/null; do :; done
+        for i in $want; do
+            ip "$fam" rule add lookup "$i" suppress_prefixlength 0 priority 8996 2>/dev/null
+        done
+    done
+    note "wired networks kept off the tunnel: ${want:-none}"
+}
+
 # WireGuard mode (init.aospacademy.rc starts it after boot; aosp-academy deploy starts it after
 # pushing a config): bring up wg0 from $WG_DIR/wg0.conf (wg setconf format: the phone's private key
 # and the hub peer) and $WG_DIR/wg0.env (ADDRESS4=, ADDRESS6=, ROUTES4=, ROUTES6=; routes
@@ -79,7 +103,7 @@ if [ "$1" = wireguard ]; then
     # Start from nothing: remove what an earlier run set (split or full), so every run ends in
     # exactly the state its wg0.env describes, and a run with the old files undoes a new one.
     for fam in -4 -6; do
-        for prio in 8990 8995 9000; do
+        for prio in 8990 8995 8996 9000; do
             while ip "$fam" rule del priority "$prio" 2>/dev/null; do :; done
         done
         ip "$fam" route flush table 1999 2>/dev/null
@@ -119,6 +143,9 @@ if [ "$1" = wireguard ]; then
         ip -4 rule add lookup wlan0 suppress_prefixlength 0 priority 8995 \
             || result "failed: no rule for the Wi-Fi subnet; not routing into the tunnel"
         ip -6 rule add lookup wlan0 suppress_prefixlength 0 priority 8995
+        # 2b. Wired networks (a USB SDR, a USB Ethernet adapter) stay local the same way; the
+        #     watch below keeps these rules current as devices come and go.
+        wired_bypass
         # 3. Everything else into the tunnel, ahead of Android's per-network rules. The unreachable
         #    default behind wg0's is the kill switch: if wg0 goes, its route goes with it, and
         #    nothing falls back to Wi-Fi.
@@ -174,6 +201,8 @@ if [ "$1" = wireguard-watch ]; then
     check() {
         [ -f "$WG_DIR/wg0.conf" ] && [ -f "$WG_DIR/wg0.env" ] || return 0
         [ "$(sed -n 's/^FULL=//p' "$WG_DIR/wg0.env" | head -n 1 | tr -d '\r')" = 1 ] || return 0
+        # A wired network came or went: adjust its 8996 rule alone, with or without Wi-Fi.
+        wired_bypass
         # No Wi-Fi: nothing to repair yet, and nothing reaches the hub anyway.
         ip -4 route show table wlan0 2>/dev/null | grep -q '^default' || return 0
         rules="$(ip -4 rule 2>/dev/null)"
