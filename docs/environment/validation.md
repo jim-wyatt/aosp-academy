@@ -57,15 +57,15 @@ When an image passes, the [Current image](#current-image) section below is repla
 ## Current image
 
 <!-- current-image: filled in by the machine that deploys -->
-**Build 24**, from branch `tunnel-watch-stock-trust` at `4f08feb` (merged as #30), built Fri Nov 20 20:42:46 EST 2026 (`ro.build.date`), SHA-256 `69053b24…bcc8`, validated 2026-11-20: build 23 plus the tunnel watch (the `aospacademy_wgwatch` service keeps the full tunnel's Wi-Fi bypass rules current when Wi-Fi changes) and, on the PC side, `stock trust` (every deploy makes the stock system trust the PCs the image trusts). The first image built from the main checkout, and deployed by the build node over the tunnel with no cable.
+**Build 25**, from `main` at `d9c22be` (the merge of #34), built Sun Nov 22 08:43:45 EST 2026 (`ro.build.date`), SHA-256 `95058a31…59ee`, validated 2026-11-22: build 24 plus the wired bypass (rule 8996 keeps a wired USB network, such as an ADALM-Pluto's, off the full tunnel; first boot and the tunnel watch add and remove it as the link comes and goes). Built on the one-machine setup (WSL on the Windows PC) and deployed from that PC over the tunnel with no cable.
 
-The image on the phone is the product **`aospacademy_arm64`**, Android 17 (`android-17.0.0_r1`, `CP2A.260605.016`), built from `main` and installed with `./aosp-academy deploy` alone, with no tap on the phone. The git tag `baseline-3` marks this image, and `baseline-2` build 17 before it. Each `baseline-N` tag marks a validated image's commit; `git tag -n1 'baseline-*'` lists them with their image's SHA-256.
+The image on the phone is the product **`aospacademy_arm64`**, Android 17 (`android-17.0.0_r1`, `CP2A.260605.016`), built from `main` and installed with `./aosp-academy deploy` alone, with no tap on the phone. The git tag `baseline-4` marks this image, and `baseline-3` build 24 before it. Each `baseline-N` tag marks a validated image's commit; `git tag -n1 'baseline-*'` lists them with their image's SHA-256.
 
-- **Report:** all green. First boot `done failures=0` with 16 icons and the development settings applied (Developer options shown, Stay awake on, brightness 64), HOME `org.fossify.home`, animations `0/0/0`, 16 MiB log buffers, `America/New_York`, probes to `connectivitycheck.grapheneos.network`, NTP from `pool.ntp.org`, `adb_keys` built in (2 keys), charge limit `upper_limit=80` (not holding at 82 %, off the charger; battery health good, 24 C), adbd listening on TCP 5555, Bluetooth and Bluetooth scanning off, Wi-Fi and the tunnel provisioned from the `/metadata` staging (the staged network validated), the WireGuard tunnel up (`up, all traffic`) with a fresh handshake, crash log empty, 22 GB free.
-- **`device test`:** 15 of 15.
-- **On stock, during the deploy:** `stock adb keys: all trusted already` (the build node's key had been added by hand before; this was the first run of the step), `stock tunnel: up`.
-- **Tunnel watch:** `init.svc.aospacademy_wgwatch` running. A deleted 8995 rule was noticed at once and back 8 s later. On build 23, with the same script pushed by hand, Wi-Fi off for 15 s and on again kept the tunnel and adb over it, with no unneeded repair.
-- **Reboots:** not repeated for build 24. Build 23 passed the round trip (stock, back to the image, a plain reboot); build 24 adds a service that only acts on routing changes.
+- **Report:** all green. First boot `done failures=0` with 16 icons and the development settings applied (Developer options shown, Stay awake on, brightness 64), HOME `org.fossify.home`, animations `0/0/0`, 16 MiB log buffers, `America/New_York`, probes to `connectivitycheck.grapheneos.network`, NTP from `pool.ntp.org`, `adb_keys` built in (2 keys), charge limit `upper_limit=80` (not holding at 58 %, off the charger; battery health good, 22 C), adbd listening on TCP 5555, Bluetooth and Bluetooth scanning off, Wi-Fi and the tunnel provisioned from the `/metadata` staging (the staged network validated), the WireGuard tunnel up (`up, all traffic`) with a fresh handshake, crash log empty, 22 GB free.
+- **`device test`:** 15 of 15, with frida-server 17.27.4.
+- **On stock, during the deploy:** `stock adb keys: all trusted already`, `stock tunnel: up`.
+- **Wired bypass:** with no wired network, no 8996 rule. With the Pluto plugged in, `eth0` came up and the watch added `8996: lookup eth0 suppress_prefixlength 0` for IPv4 and IPv6; the Pluto's address went through `eth0`, everything else still through `wg0`, and its iiod port answered. Unplugged, the watch removed both rules within a minute, and the Pluto's address went back through the tunnel. The tunnel was not restarted (handshake fresh throughout), and 8990, 8995 and 9000 were untouched. Before the build, a stale 8996 rule planted by hand was removed with the script pushed by hand.
+- **Reboots:** the deploy itself went from the image to stock and back. The full round trip (and a plain reboot) last passed on build 23.
 - **By hand:** not repeated. The by-hand checklist last passed on build 21.
 - **Hardware:** as in the table above.
 
@@ -74,7 +74,7 @@ The image on the phone is the product **`aospacademy_arm64`**, Android 17 (`andr
 | Item | Result |
 | --- | --- |
 | Android Virtualization Framework | Absent on this phone: no `ro.boot.hypervisor.*`, no `/dev/kvm`, no `com.android.virt` APEX on stock, no Terminal app. Hence the AVF packages left out of the image. |
-| Frida 17.26.3 | `device frida start` pushes and starts the server; `frida-ps -Ua` lists the running apps. |
+| Frida 17.27.4 | `device frida start` pushes and starts the server; `frida-ps -Ua` lists the running apps. |
 | Perfetto | `device trace` records and pulls traces. The config file must live in `/data/misc/perfetto-configs/`; `/data/local/tmp` is refused by SELinux. |
 | simpleperf | Unusable on this phone: no perf events (`cpu-cycles` and `cpu-clock` both "not supported on the device"). |
 | SDK `adb` and pinned `adb` | The same version, so Android Studio and the project's shell share one adb server; `aosp-academy check` enforces equality. |
