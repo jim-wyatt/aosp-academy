@@ -136,7 +136,7 @@ On unit 2's stock system, all reversible, as described in [The stock system](sto
 | F-Droid 2.0.3 (hash-pinned; signing certificate and PGP signature verified against f-droid.org) | Installed over ADB (`versionCode` 2000053, installer none); launches. |
 | `google_debloat` module 1.1 (27 Google packages hidden; 8 Play updates removed first with `pm uninstall-system-updates`) | After a reboot none of the 27 packages is listed; Play services, GSF, WebView, Gboard, Contacts, Messages, Files and F-Droid remain, and the Play Store resolves to the factory `/product/priv-app/Phonesky` copy. No crash in the crash log, launcher and root unaffected. |
 | `vendor_extras_debloat` module (58 carrier, partner, Motorola and telemetry packages hidden) | After a reboot none of the 58 is listed (only two Battery Care resource overlays remain, which are not apps); camera, launcher, face unlock, Dolby, Moto Secure core, Play services and F-Droid remain, no crash in the crash log, root unaffected. |
-| Frida 17.26.3 | `aosp-academy device frida start` pushes and starts the server; `frida-ps -Ua` lists the running apps. |
+| Frida 17.27.4 | `aosp-academy device frida start` pushes and starts the server; `frida-ps -Ua` lists the running apps. |
 | Perfetto | `aosp-academy device trace` records and pulls traces. The config file must live in `/data/misc/perfetto-configs/`; `/data/local/tmp` is refused by SELinux. |
 | simpleperf | Unusable on this phone: no perf events (`cpu-cycles` and `cpu-clock` both "not supported on the device"). |
 | Android Virtualization Framework | Absent: no `ro.boot.hypervisor.*`, no `/dev/kvm`, no `com.android.virt` APEX, no Terminal app. |
