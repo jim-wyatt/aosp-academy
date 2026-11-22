@@ -1,0 +1,15 @@
+diff --git a/quickstep/AndroidManifest-launcher.xml b/quickstep/AndroidManifest-launcher.xml
+index d6aa886..58c51eb 100644
+--- a/quickstep/AndroidManifest-launcher.xml
++++ b/quickstep/AndroidManifest-launcher.xml
+@@ -54,7 +54,9 @@
+             android:taskAffinity=""
+             android:exported="true"
+             android:enabled="true">
+-            <intent-filter>
++            <!-- aosp-academy: below the image's own launcher (priority 0), so the HOME role's
++                 fallback holder is that launcher and first boot never shows a chooser. -->
++            <intent-filter android:priority="-1">
+                 <action android:name="android.intent.action.MAIN" />
+                 <action android:name="android.intent.action.SHOW_WORK_APPS" />
+                 <action android:name="android.intent.action.ALL_APPS" />

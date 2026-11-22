@@ -116,10 +116,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     AospAcademyNetworkStackOverlay
 
-# Fossify Launcher is the home screen: the first-boot service assigns it the HOME role.
-# Launcher3QuickStep stays installed because SystemUI binds its quickstep service for gesture
-# navigation and recents. (A preferred-apps file was tried first; with two equal-priority HOME
-# activities the role controller does not reliably honour it.)
+# Fossify Launcher is the home screen. Launcher3QuickStep stays installed because SystemUI binds
+# its quickstep service for gesture navigation and recents; the Launcher3 patch in image/patches/
+# drops its HOME priority to -1, so the role controller's fallback holder is Fossify from the first
+# boot, with no chooser. The first-boot service also assigns the role explicitly. (A preferred-apps
+# file was tried first; with two equal-priority HOME activities the role controller ignored it.)
 
 # The apps: the Fossify suite and nothing else on top of AOSP. Prebuilt APKs from F-Droid (hash-
 # and signer-pinned in toolchain.json, copied into prebuilt/ by apply-local.sh), declared in
