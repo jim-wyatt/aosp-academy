@@ -14,7 +14,7 @@ Most of it runs by itself: `./aosp-academy deploy` ends with the report and `dev
 | Install | The DSU installer reaches `READY`. |
 | Boot | The phone comes up in the image: `ro.product.name` is `aospacademy_arm64`, and `gsi status` says `running`. |
 | Authorisation | With keys built in, no Allow tap; the report's `AdbKeys` row is `built in (N keys)`. |
-| Report | Every row as in [the report table](deploying.md#the-report): first boot `done failures=0` with 16 icons, HOME `com.android.launcher3`, animations `0/0/0`, 16 MiB log buffers, `America/New_York`, Files and keyboard icons hidden, charge limit `upper_limit=80` applied, network validated with probes to `connectivitycheck.grapheneos.network` and NTP from `pool.ntp.org`, crash log empty. |
+| Report | Every row as in [the report table](deploying.md#the-report): first boot `done failures=0` with 16 icons, HOME `org.fossify.home`, animations `0/0/0`, 16 MiB log buffers, `America/New_York`, Files and keyboard icons hidden, charge limit `upper_limit=80` applied, network validated with probes to `connectivitycheck.grapheneos.network` and NTP from `pool.ntp.org`, crash log empty. |
 | `device test` | 15 of 15 (device, root, logs, native, app, debug including `adb root`, JDWP, trace, Frida, mirror). |
 
 ### By hand, on the image
@@ -29,6 +29,7 @@ Run these from a shell on the device node with the pinned `adb` (`./aosp-academy
 | Vibrator | Trigger a vibration (a key press with haptics, a notification); `adb logcat -d \| grep "setting amplitude"` | No `Error setting amplitude to -1.0`. |
 | Google endpoints | `adb logcat -d -b all \| grep -E "gstatic\|www.google.com\|time.android.com"` | No lines. |
 | adb authorisation | `adb shell getprop ro.adb.secure`; `adb shell su 0 ls /data/misc/adb` | `1`; with keys built in, `/data/misc/adb` holds no `adb_keys`, so the built-in list did the trusting. |
+| No home chooser | `adb logcat -d -b events \| grep ResolverActivity` after the first boot | No lines: the HOME role went straight to Fossify Launcher. |
 | JDWP | `adb jdwp` | Lists `system_server`, SystemUI and the running apps; the count follows how many apps are running. |
 | Charge limit | On the charger above the limit: `adb shell su 0 cat /sys/module/qpnp_adaptive_charge/parameters/blocking`; `adb shell dumpsys battery` | `blocking` 1 and "Not charging" while the level is above 81 % with the limit at 80 (the phone sits at about 84 to 86 % after charging past it). Read `blocking` only, never `upper_limit` or `lower_limit`, and never list the parameters directory ([why](image.md#the-charge-limit)). |
 | Persistence | `adb reboot`; then `./aosp-academy gsi stock` and `./aosp-academy gsi boot` | Back in the image after each, with its data and first-boot state intact (about 45 s for a reboot, 55 s for a switch). |
