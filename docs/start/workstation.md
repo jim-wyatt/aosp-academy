@@ -74,7 +74,7 @@ Every download is pinned in `toolchain.json` with its hash and verified before i
 | --- | --- | --- |
 | 1. System tools | Windows: winget installs Microsoft OpenJDK 21, Git, GitHub CLI, scrcpy, jadx (the GUI), 7-Zip, and Android Studio with `--studio`. Linux and macOS: setup lists whatever of `openjdk-21-jdk`, `git`, `gh` and `scrcpy` is missing, for your package manager. | system-wide |
 | 2. JDK and SDK | Finds JDK 21 and sets `JAVA_HOME`. Downloads Google's command-line tools for your OS and installs the pinned SDK packages: platform-tools, the Android 17 platform (`platforms/android-37.0`, API 37), `build-tools/37.0.0` and NDK `30.0.16248370`. | `ANDROID_HOME`: `%LOCALAPPDATA%\Android\Sdk` on Windows, `~/Android/Sdk` elsewhere (an existing `ANDROID_HOME` is kept) |
-| 3. JARs and archives | R8 8.3.37 (its D8 builds the stock helpers), apktool 3.0.3, the jadx 1.5.6 command line | `work/tools/` |
+| 3. JARs and archives | R8 9.5.33 (its D8 builds the stock helpers), apktool 3.0.3, the jadx 1.5.7 command line | `work/tools/` |
 | 4. Device procedure inputs | The pinned platform-tools **37.0.3** (`adb`, `fastboot`), the DFRoot, KernelSU and Magisk APKs, Google's Test DPC QR image, Val Protocol at its pinned commit; the Motorola driver is checked, not downloaded | `work/` |
 | 5. Device tools | frida-server for the phone (unpacked), the F-Droid APK for the stock system. The image's own inputs, the Fossify APKs, are left to the build node (`aosp-academy image inputs`). | `work/device-tools/` |
 | 6. Python environments | `.venv` (Val Protocol's requirements), `.venv-frida` (`frida` and `frida-tools`, the same version as the server), `.venv-docs` (Zensical, for this site) | `work/` |

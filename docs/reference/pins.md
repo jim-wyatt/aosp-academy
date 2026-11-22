@@ -25,9 +25,9 @@ Single files downloaded into `work/tools/`, each with a SHA-256 or SHA-1:
 
 | Pin | Used for |
 | --- | --- |
-| `r8-8.3.37.jar` | D8, which builds the stock helpers (`stock build`, `aosp-academy d8`) |
+| `r8-9.5.33.jar` | D8, which builds the stock helpers (`stock build`, `aosp-academy d8`) |
 | `apktool_3.0.3.jar` | decoding and rebuilding APK resources (`aosp-academy apktool`) |
-| `jadx-1.5.6.zip` (an archive, unpacked to `work/tools/jadx`) | the jadx command-line decompiler; the winget package is the GUI only |
+| `jadx-1.5.7.zip` (an archive, unpacked to `work/tools/jadx`) | the jadx command-line decompiler; the winget package is the GUI only |
 | `gradle-9.9.2-bin.zip` (an archive, unpacked to `work/tools/gradle`) | Gradle for `new-app`, which writes each new project's wrapper with it |
 
 An unpacked archive gets a `.pinned-sha256` stamp, so `setup` re-extracts it when the pin changes and `check` can confirm what's there came from the pinned file.

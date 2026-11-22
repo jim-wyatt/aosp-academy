@@ -63,9 +63,9 @@
   },
   "jars": [
     {
-      "name": "r8-8.3.37.jar",
-      "url": "https://dl.google.com/dl/android/maven2/com/android/tools/r8/8.3.37/r8-8.3.37.jar",
-      "sha1": "6b023243a76124fb055d66b50e2e11db9b4d9b2b",
+      "name": "r8-9.5.33.jar",
+      "url": "https://dl.google.com/dl/android/maven2/com/android/tools/r8/9.5.33/r8-9.5.33.jar",
+      "sha1": "746ec7e95900853c82ba8f8ea8c28c96fc5f4285",
       "purpose": "D8 used to build stock/helpers (aosp-academy stock build)"
     },
     {
@@ -77,9 +77,9 @@
   ],
   "archives": [
     {
-      "name": "jadx-1.5.6.zip",
-      "url": "https://github.com/skylot/jadx/releases/download/v1.5.6/jadx-1.5.6.zip",
-      "sha256": "545ea2be9c242511bc145755cf4bda2485ade42966e096f8b4d3da2a230e8974",
+      "name": "jadx-1.5.7.zip",
+      "url": "https://github.com/skylot/jadx/releases/download/v1.5.7/jadx-1.5.7.zip",
+      "sha256": "1755e4242ade71a077438723689f404079592ec7764a3a0572f98fef94ebcbf3",
       "extractTo": "jadx",
       "purpose": "jadx command-line decompiler (the winget package is GUI-only)"
     },
@@ -95,9 +95,9 @@
     "_note": "Optional tools for the prepared device (docs/apps/instrumentation.md, docs/device/stock.md). Downloaded into work/device-tools/, git-ignored. Bumping these is routine, unlike the inputs section. buildOnly entries are image-build inputs (the Fossify APKs built into aospacademy_arm64): only the build node downloads them (aosp-academy image inputs); setup skips them.",
     "downloads": [
       {
-        "name": "frida-server-17.26.3-android-arm64.xz",
-        "url": "https://github.com/frida/frida/releases/download/17.26.3/frida-server-17.26.3-android-arm64.xz",
-        "sha256": "2c8de56238978b9b8a681f7cc84c113e84b7c8ff78ea0b6c55fa13646a777dc5",
+        "name": "frida-server-17.27.4-android-arm64.xz",
+        "url": "https://github.com/frida/frida/releases/download/17.27.4/frida-server-17.27.4-android-arm64.xz",
+        "sha256": "a2007a0f3a8bcbbc3ee165b5d7904970a59b2a769310d751d68cfa405145432f",
         "extract": "frida-server",
         "purpose": "Frida agent that runs as root on the device; the PC-side frida-tools must be the same major.minor"
       },
@@ -238,8 +238,8 @@
       }
     ],
     "frida": {
-      "version": "17.26.3",
-      "toolsVersion": "14.13.1",
+      "version": "17.27.4",
+      "toolsVersion": "14.13.2",
       "_note": "pip pins for work/.venv-frida: frida==version (must match the server above), frida-tools==toolsVersion"
     },
     "gsi": {

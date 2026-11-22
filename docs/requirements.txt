@@ -1,2 +1,2 @@
 # Documentation site toolchain. Installed into work/.venv-docs by `aosp-academy setup`.
-zensical==0.1.2
+zensical==0.1.3
