@@ -58,16 +58,14 @@ When an image passes, the [Current image](#current-image) section below is repla
 ## Current image
 
 <!-- current-image: filled in by the machine that deploys -->
-**Build 25**, from `main` at `d9c22be` (the merge of #34), built Sun Nov 22 08:43:45 EST 2026 (`ro.build.date`), SHA-256 `95058a31…59ee`, validated 2026-11-22: build 24 plus the wired bypass (rule 8996 keeps a wired USB network, such as an ADALM-Pluto's, off the full tunnel; first boot and the tunnel watch add and remove it as the link comes and goes). Built on the one-machine setup (WSL on the Windows PC) and deployed from that PC over the tunnel with no cable.
+**Build 26**, from branch `home-default` at `d6e6f38`, built Sun Nov 22 11:40:24 EST 2026 (`ro.build.date`), SHA-256 `4b505759…1aef`, validated 2026-11-22: build 25 plus the Launcher3 patch (Quickstep's HOME priority -1), so Fossify Launcher is the HOME role's fallback holder and first boot shows no home chooser.
 
-The image on the phone is the product **`aospacademy_arm64`**, Android 17 (`android-17.0.0_r1`, `CP2A.260605.016`), built from `main` and installed with `./aosp-academy deploy` alone, with no tap on the phone. The git tag `baseline-4` marks this image, and `baseline-3` build 24 before it. Each `baseline-N` tag marks a validated image's commit; `git tag -n1 'baseline-*'` lists them with their image's SHA-256.
+The image on the phone is the product **`aospacademy_arm64`**, Android 17 (`android-17.0.0_r1`, `CP2A.260605.016`), installed with `./aosp-academy deploy` alone, with no tap on the phone. The git tag `baseline-4` marks build 25 before it, and `baseline-3` build 24. Each `baseline-N` tag marks a validated image's commit; `git tag -n1 'baseline-*'` lists them with their image's SHA-256.
 
-- **Report:** all green. First boot `done failures=0` with 16 icons and the development settings applied (Developer options shown, Stay awake on, brightness 64), HOME `org.fossify.home`, animations `0/0/0`, 16 MiB log buffers, `America/New_York`, probes to `connectivitycheck.grapheneos.network`, NTP from `pool.ntp.org`, `adb_keys` built in (2 keys), charge limit `upper_limit=80` (not holding at 58 %, off the charger; battery health good, 22 C), adbd listening on TCP 5555, Bluetooth and Bluetooth scanning off, Wi-Fi and the tunnel provisioned from the `/metadata` staging (the staged network validated), the WireGuard tunnel up (`up, all traffic`) with a fresh handshake, crash log empty, 22 GB free.
-- **`device test`:** 15 of 15, with frida-server 17.27.4.
-- **On stock, during the deploy:** `stock adb keys: all trusted already`, `stock tunnel: up`.
-- **Wired bypass:** with no wired network, no 8996 rule. With the Pluto plugged in, `eth0` came up and the watch added `8996: lookup eth0 suppress_prefixlength 0` for IPv4 and IPv6; the Pluto's address went through `eth0`, everything else still through `wg0`, and its iiod port answered. Unplugged, the watch removed both rules within a minute, and the Pluto's address went back through the tunnel. The tunnel was not restarted (handshake fresh throughout), and 8990, 8995 and 9000 were untouched. Before the build, a stale 8996 rule planted by hand was removed with the script pushed by hand.
-- **Reboots:** the deploy itself went from the image to stock and back. The full round trip (and a plain reboot) last passed on build 23.
-- **By hand:** not repeated. The by-hand checklist last passed on build 21.
+- **No home chooser:** the setup stub left the HOME role at first boot and the role controller gave it to `org.fossify.home` as the fallback holder 4 ms later; no `ResolverActivity` in the events log, and none seen on the screen. The first-boot service's own assignment found the role already held. On build 25 the same moment gave no holder, and the chooser opened 8 s before the first-boot service set the role.
+- **Report:** all green, as for build 25, with the charge limit holding (`blocking=1` at 80 %, on AC, "not charging"; battery health good, 30 C).
+- **`device test`:** 15 of 15.
+- **Wired bypass, reboots, by hand:** not repeated; the image change is one manifest priority. Build 25 passed the wired bypass, build 23 the reboot round trip, build 21 the by-hand checklist.
 - **Hardware:** as in the table above.
 
 ## Tools and platform checks
