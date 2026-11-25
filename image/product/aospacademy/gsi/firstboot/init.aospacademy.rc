@@ -57,6 +57,20 @@ service aospacademy_wgwatch /product/bin/aospacademy-firstboot wireguard-watch
 on property:sys.boot_completed=1
     start aospacademy_wgwatch
 
+# Tunnel wakelock: the phone stays awake while the tunnel is up, so its keepalive keeps the Wi-Fi
+# router's UDP mapping open (the script's tunnel_wakelock_sync; the watch above applies it on every
+# routing change). This applies a change of the switch at once:
+#   adb shell su 0 setprop persist.aospacademy.tunnel_wakelock 0   (off; unset or 1: on)
+service aospacademy_tunnelwake /product/bin/aospacademy-firstboot tunnel-wakelock
+    user root
+    group root
+    seclabel u:r:su:s0
+    oneshot
+    disabled
+
+on property:sys.boot_completed=1 && property:persist.aospacademy.tunnel_wakelock=*
+    start aospacademy_tunnelwake
+
 service aospacademy_chargelimit /product/bin/aospacademy-firstboot charge-limit
     user root
     group root
