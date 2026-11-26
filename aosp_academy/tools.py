@@ -137,5 +137,6 @@ def environment() -> dict[str, str]:
     if ndk:
         env["ANDROID_NDK_HOME"] = str(ndk)
     env["ADB"] = str(WORK / "platform-tools" / f"adb{EXE}")  # scrcpy and others honour $ADB
+    env["ADB_TCP_KEEPALIVE_INTERVAL"] = os.environ.get("ADB_TCP_KEEPALIVE_INTERVAL", "60")  # see adb.py
     env["PATH"] = os.pathsep.join([str(d) for d in path_dirs()] + [os.environ.get("PATH", "")])
     return env

@@ -343,6 +343,22 @@ for pkg in $(pm list packages org.fossify. | sed 's/^package://'); do
     note "icon colour $ICON_ALIAS for $pkg"
 done
 
+# 4b. Fossify Clock lets the screen turn off. Its "Prevent phone from sleeping while the app is in
+#     the foreground" setting (prevent_phone_from_sleeping) is on by default and holds the screen on
+#     with FLAG_KEEP_SCREEN_ON; on 2026-11-25 the clock left open kept the screen on for seven hours.
+#     Off once, as a default (step 4 above has created Prefs.xml), so turning it on later in the
+#     app's settings sticks.
+CLOCK=org.fossify.clock
+f=/data/data/$CLOCK/shared_prefs/Prefs.xml
+if [ ! -e "$STATE/clock-sleep" ] && [ -f "$f" ]; then
+    am force-stop "$CLOCK"
+    sed -i '/name="prevent_phone_from_sleeping"/d' "$f"
+    sed -i 's#</map>#    <boolean name="prevent_phone_from_sleeping" value="false" />\n</map>#' "$f"
+    uid=$(stat -c %u "/data/data/$CLOCK"); chown "$uid:$uid" "$f"; chmod 660 "$f"
+    restorecon -F "$f" >/dev/null 2>&1
+    touch "$STATE/clock-sleep"; note "Fossify Clock no longer keeps the screen on"
+fi
+
 # 5. Bluetooth off. Android turns it on at boot by default (BluetoothManagerService, SYSTEM_BOOT);
 #    a development phone on a desk has nothing to pair with. Bluetooth scanning (apps scanning
 #    for beacons while Bluetooth is off, ble_scan_always_enabled) goes off too. Done once, as a

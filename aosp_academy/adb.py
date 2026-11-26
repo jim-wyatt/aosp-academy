@@ -16,6 +16,15 @@ from .core import EXE, WORK, Failure, run, say, sleep
 ADB = WORK / "platform-tools" / f"adb{EXE}"
 FASTBOOT = WORK / "platform-tools" / f"fastboot{EXE}"
 
+# adb sets a 1 s TCP keepalive on every 'adb connect' transport (socket_spec.cpp), and each probe
+# wakes a phone that sleeps at the far end of the tunnel: about 3,000 wakeups an hour on 2026-11-25,
+# with the phone awake a quarter of the time with its screen off. 60 s still notices a dead link
+# within minutes. The adb server reads it when it starts, so it applies to servers this CLI starts
+# and to anything run from 'aosp-academy shell'. A value already set wins.
+KEEPALIVE_ENV = "ADB_TCP_KEEPALIVE_INTERVAL"
+KEEPALIVE_DEFAULT = "60"
+os.environ.setdefault(KEEPALIVE_ENV, KEEPALIVE_DEFAULT)
+
 
 def adb(*args, check: bool = True, timeout: float | None = None) -> str:
     """Run adb and return its output (stdout and stderr together), stripped."""
