@@ -81,49 +81,6 @@ wired_bypass() {
     note "wired networks kept off the tunnel: ${want:-none}"
 }
 
-# Tunnel wakelock: while the tunnel is up, a kernel wakelock keeps the phone from suspending. A
-# suspended phone stops sending its WireGuard keepalive, the UDP mapping on the Wi-Fi router
-# expires within a minute or two, and the hub can't reach the phone (adb included) until something
-# wakes it: on 2026-11-25 pings from the build machine every 20 s began failing about four minutes
-# after the phone was last used, with Doze already disabled. The lock holds the CPU only: the screen still turns off. It is
-# held when wg0 is up and the tunnel's status says "up", released otherwise, and off altogether with
-#   adb shell su 0 setprop persist.aospacademy.tunnel_wakelock 0
-# (unset or any other value: on). Holding it costs battery unless the phone is on its charger.
-# Taking a lock that is held, or releasing one that isn't, is harmless, so this only reads the
-# state to log changes: wake_lock itself can't be read from the su domain, wakeup_sources can.
-tunnel_wakelock_sync() {
-    lock=aospacademy_tunnel
-    [ -e /sys/power/wake_lock ] || return 0
-    want=0
-    if [ "$(getprop persist.aospacademy.tunnel_wakelock)" != 0 ] \
-        && ip link show dev wg0 up 2>/dev/null | grep -q wg0; then
-        case "$(cat /data/local/aospacademy-wg/status 2>/dev/null)" in up*) want=1 ;; esac
-    fi
-    src=/sys/kernel/debug/wakeup_sources
-    if [ ! -r "$src" ]; then
-        # State unknown: set it without logging, so routing events don't fill the log.
-        if [ "$want" = 1 ]; then echo "$lock" > /sys/power/wake_lock; else echo "$lock" > /sys/power/wake_unlock; fi 2>/dev/null
-        return 0
-    fi
-    held=0
-    awk -v l="$lock" '$1 == l && $6 > 0 { f = 1 } END { exit !f }' "$src" && held=1
-    [ "$want" = "$held" ] && return 0
-    if [ "$want" = 1 ]; then
-        echo "$lock" > /sys/power/wake_lock 2>/dev/null \
-            && note "tunnel wakelock held: the phone stays awake while the tunnel is up" \
-            || note "tunnel wakelock: taking it failed"
-    else
-        echo "$lock" > /sys/power/wake_unlock 2>/dev/null && note "tunnel wakelock released"
-    fi
-}
-
-# Tunnel-wakelock mode (init.aospacademy.rc starts it when persist.aospacademy.tunnel_wakelock
-# changes): apply the property at once, without waiting for the next routing event.
-if [ "$1" = tunnel-wakelock ]; then
-    tunnel_wakelock_sync
-    exit 0
-fi
-
 # WireGuard mode (init.aospacademy.rc starts it after boot; aosp-academy deploy starts it after
 # pushing a config): bring up wg0 from $WG_DIR/wg0.conf (wg setconf format: the phone's private key
 # and the hub peer) and $WG_DIR/wg0.env (ADDRESS4=, ADDRESS6=, ROUTES4=, ROUTES6=; routes
@@ -134,7 +91,7 @@ if [ "$1" = wireguard ]; then
     WG_DIR=/data/local/aospacademy-wg
     [ -f "$WG_DIR/wg0.conf" ] && [ -f "$WG_DIR/wg0.env" ] || exit 0
     umask 077
-    result() { note "wireguard: $*"; echo "$*" > "$WG_DIR/status"; tunnel_wakelock_sync; exit 0; }
+    result() { note "wireguard: $*"; echo "$*" > "$WG_DIR/status"; exit 0; }
     wg=/product/bin/wg
     [ -x "$wg" ] || wg="$WG_DIR/wg"   # a wg pushed by hand, for trying this on an image without one
     [ -x "$wg" ] || result "failed: no wg binary"
@@ -242,8 +199,6 @@ if [ "$1" = wireguard-watch ]; then
     WG_DIR=/data/local/aospacademy-wg
     until [ -f "$WG_DIR/status" ]; do sleep 10; done
     check() {
-        # The wakelock follows wg0 in either tunnel mode: taken when it is up, dropped when it goes.
-        tunnel_wakelock_sync
         [ -f "$WG_DIR/wg0.conf" ] && [ -f "$WG_DIR/wg0.env" ] || return 0
         [ "$(sed -n 's/^FULL=//p' "$WG_DIR/wg0.env" | head -n 1 | tr -d '\r')" = 1 ] || return 0
         # A wired network came or went: adjust its 8996 rule alone, with or without Wi-Fi.
