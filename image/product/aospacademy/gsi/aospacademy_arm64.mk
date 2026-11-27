@@ -103,6 +103,11 @@ PRODUCT_PRODUCT_PROPERTIES += \
 PRODUCT_PACKAGES += \
     aospacademy_wg
 
+# The tunnel nudge (tunnelnudge/): a wake alarm every 2 minutes has WireGuard send the hub a
+# keepalive, so a router that renumbers the phone's UDP mapping can't cut it off while it sleeps.
+PRODUCT_PACKAGES += \
+    aospacademy_tunnelnudge
+
 # Our look and defaults: dark theme, gesture navigation, our wallpaper (from which Material You
 # derives the system colours), Fossify Phone and Messages as the default dialer and SMS app.
 # See overlay/ (a static framework RRO).

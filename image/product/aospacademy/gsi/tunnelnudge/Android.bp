@@ -1,0 +1,24 @@
+// aospacademy-tunnelnudge: wakes the phone on an alarm every few minutes and has WireGuard send the
+// hub a keepalive, so a home router that renumbers the phone's UDP mapping can't leave the phone
+// out of reach while it sleeps. See tunnelnudge.c and init.aospacademy.rc.
+
+package {
+    default_applicable_licenses: ["device_aospacademy_gsi_tunnelnudge_license"],
+}
+
+license {
+    name: "device_aospacademy_gsi_tunnelnudge_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-MIT"],
+}
+
+cc_binary {
+    name: "aospacademy_tunnelnudge",
+    stem: "aospacademy-tunnelnudge",
+    product_specific: true,
+    srcs: ["tunnelnudge.c"],
+    // Plain C, as wg (wireguard/Android.bp): no libc++ to list in the system image.
+    stl: "none",
+    shared_libs: ["liblog"],
+    cflags: ["-Wall", "-Werror"],
+}
