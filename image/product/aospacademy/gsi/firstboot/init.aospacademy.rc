@@ -57,6 +57,22 @@ service aospacademy_wgwatch /product/bin/aospacademy-firstboot wireguard-watch
 on property:sys.boot_completed=1
     start aospacademy_wgwatch
 
+# Tunnel nudge: a wake alarm every persist.aospacademy.tunnel_nudge seconds (120 unless set; 0 is
+# off) has WireGuard send the hub a keepalive, so a home router that renumbers the phone's UDP
+# mapping leaves it out of reach for minutes, not an hour (tunnelnudge/tunnelnudge.c). A change
+# applies at once:   adb shell su 0 setprop persist.aospacademy.tunnel_nudge 300
+service aospacademy_tunnelnudge /product/bin/aospacademy-tunnelnudge ${persist.aospacademy.tunnel_nudge:-120} /product/bin/aospacademy-firstboot tunnel-nudge
+    user root
+    group root
+    seclabel u:r:su:s0
+    disabled
+
+on property:sys.boot_completed=1
+    start aospacademy_tunnelnudge
+
+on property:sys.boot_completed=1 && property:persist.aospacademy.tunnel_nudge=*
+    restart aospacademy_tunnelnudge
+
 service aospacademy_chargelimit /product/bin/aospacademy-firstboot charge-limit
     user root
     group root

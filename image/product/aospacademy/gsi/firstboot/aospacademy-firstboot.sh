@@ -221,6 +221,24 @@ if [ "$1" = wireguard-watch ]; then
     exit 0   # the monitor ended; init restarts the service
 fi
 
+# Tunnel-nudge mode (aospacademy-tunnelnudge runs it on a wake alarm, every
+# persist.aospacademy.tunnel_nudge seconds): have WireGuard send each peer a keepalive now. The
+# kernel sends one at once only when a peer's persistent keepalive goes from off to on
+# (wireguard/netlink.c, set_peer), so this turns it off and back to the value it had. The packet
+# goes out from the phone's own port, so a home router that dropped or renumbered the mapping makes
+# a new one, and the hub learns the new endpoint from it. Silent: it runs every few minutes.
+if [ "$1" = tunnel-nudge ]; then
+    WG_DIR=/data/local/aospacademy-wg
+    wg=/product/bin/wg
+    [ -x "$wg" ] || wg="$WG_DIR/wg"
+    "$wg" show wg0 persistent-keepalive 2>/dev/null | while read -r peer every; do
+        case "$every" in ''|off|*[!0-9]*) continue ;; esac
+        "$wg" set wg0 peer "$peer" persistent-keepalive 0
+        "$wg" set wg0 peer "$peer" persistent-keepalive "$every"
+    done
+    exit 0
+fi
+
 echo running > "$STATUS"
 note "start"
 
